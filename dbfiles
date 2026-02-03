@@ -1,0 +1,2 @@
+https://cloud.mongodb.com/v2/697ec6b4535673888b5e845f#/explorer/697ec70931fa7e9e17328fd2
+mongoose.connect("mongodb+srv://venky:venky%40123@cluster123.k4l0yzx.mongodb.net/expense")
