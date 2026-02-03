@@ -1,4 +1,5 @@
 import axios from "axios";
+import { jwtDecode } from "jwt-decode";
 import { useEffect, useState } from "react";
 import { Container, Form, Button, Table } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
@@ -14,23 +15,26 @@ function Home() {
     const [list, setList] = useState([]);
     const [edit, setEdit] = useState("add")
     const [editId, setEditId] = useState("")
+    const [userId, setUserId] = useState("")
 
     const navigate = useNavigate()
 
     const token = localStorage.getItem("token");
-    const userId = localStorage.getItem("userId");
 
 
     const fetchExpenses = async () => {
         try {
-            const res = await axios.get(`${URL}/get/${userId}`);
-            console.log(res.data);
+            const res = await axios.get(`${URL}/get/${userId}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
             setList(res.data);
-
         } catch (err) {
             toast.error("Failed to fetch expenses");
         }
     };
+
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -93,16 +97,26 @@ function Home() {
         toast.success("Deleted")
         fetchExpenses()
     }
+    useEffect(() => {
+        if (!token) {
+            navigate("/login");
+            return;
+        }
+
+        const decode = jwtDecode(token);
+        setUserId(decode.id);
+    }, [token]);
 
     useEffect(() => {
-        fetchExpenses();
-        console.log(userId);
-    }, []);
+        if (userId) fetchExpenses();
+    }, [userId]);
 
-    const logout = async () => {
-        localStorage.removeItem("user")
-        navigate("/login")
-    }
+
+    const logout = () => {
+        localStorage.clear();
+        navigate("/login", { replace: true });
+    };
+
 
     return (
         <Container className="mt-5">
